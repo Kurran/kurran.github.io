@@ -106,6 +106,50 @@
     .profile:hover { background: var(--accent); color: var(--ink); }
     .profile:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 
+    [hidden] { display: none !important; }
+    .entry {
+      display: grid;
+      min-height: 100svh;
+      place-items: center;
+      padding: 1.25rem;
+      background: radial-gradient(ellipse at center, #2b3422, var(--ink) 65%);
+    }
+    .entry-card {
+      width: min(100%, 26rem);
+      padding: clamp(1.5rem, 6vw, 3rem);
+      border: 1px solid var(--rule);
+      background: var(--ink);
+    }
+    .entry-card h1 { font-size: clamp(2rem, 7vw, 3rem); }
+    .entry-card form { margin-top: 1.75rem; }
+    .entry-card label { display: block; margin-bottom: 0.5rem; color: var(--muted); }
+    .entry-card input {
+      width: 100%;
+      min-height: 3rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid #626b55;
+      border-radius: 0;
+      background: #1b2017;
+      color: var(--paper);
+      font: inherit;
+    }
+    .entry-card input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .entry-card input[aria-invalid="true"] { border-color: #ffb3a0; }
+    .entry-card button {
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 1rem;
+      background: var(--accent);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .entry-card button:hover { background: var(--paper); }
+    .entry-error { margin: 0.65rem 0 0; color: #ffb3a0; }
+    .entry-error:empty { margin: 0; }
+
     .art {
       display: block;
       width: 100%;
@@ -127,7 +171,21 @@
   </style>
 </head>
 <body>
-  <div class="shell">
+  <main class="entry" id="entry" aria-labelledby="entry-title">
+    <div class="entry-card">
+      <p class="eyebrow">Kurran</p>
+      <h1 id="entry-title">Enter password</h1>
+      <form id="entry-form">
+        <label for="entry-password">Password</label>
+        <input id="entry-password" type="password" inputmode="numeric" required aria-describedby="entry-error">
+        <p class="entry-error" id="entry-error" aria-live="polite"></p>
+        <button class="profile" type="submit" disabled>Enter site <span aria-hidden="true">↗</span></button>
+      </form>
+      <noscript><p>Enable JavaScript to enter the site.</p></noscript>
+    </div>
+  </main>
+
+  <div class="shell" id="home" hidden>
     <header>
       <span class="identity"><span class="mark" aria-hidden="true">K</span> Kurran</span>
       <span class="edition">Personal site</span>
@@ -136,7 +194,7 @@
     <main>
       <section aria-labelledby="welcome">
         <p class="eyebrow">Welcome</p>
-        <h1 id="welcome">This is the home of <span class="name">Kurran</span></h1>
+        <h1 id="welcome" tabindex="-1">This is the home of <span class="name">Kurran</span></h1>
         <p class="description">My little corner of the internet.</p>
         <a class="profile" href="https://github.com/Kurran">Find me on GitHub <span aria-hidden="true">↗</span></a>
       </section>
@@ -167,5 +225,34 @@
 
     <footer><span>© Kurran</span><span>Made for the web</span></footer>
   </div>
+  <script>
+    const form = document.getElementById('entry-form');
+    const password = document.getElementById('entry-password');
+    const error = document.getElementById('entry-error');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (password.value !== '256') {
+        password.setAttribute('aria-invalid', 'true');
+        error.textContent = 'Incorrect password. Try again.';
+        password.focus();
+        password.select();
+        return;
+      }
+
+      form.reset();
+      document.getElementById('entry').hidden = true;
+      document.getElementById('home').hidden = false;
+      document.getElementById('welcome').focus();
+    });
+
+    password.addEventListener('input', () => {
+      password.removeAttribute('aria-invalid');
+      error.textContent = '';
+    });
+
+    form.querySelector('button').disabled = false;
+  </script>
 </body>
 </html>
